@@ -6,7 +6,11 @@ use warnings FATAL => 'all';
 use base qw(Exporter);
 
 our @EXPORT = qw(getFutureContract);
-our @EXPORT_OK = qw(getFutureContract);
+our @EXPORT_OK = qw(getFutureContract getFutureContractAux getInterestRate getCurrentPotPrice);
+
+
+use List::Util qw(min max);
+use List::MoreUtils qw(firstidx);
 
 =head1 NAME
 
@@ -66,21 +70,98 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =head1 SUBROUTINES/METHODS
 
+=cut
+
+#Annualized Interest rate
+my %dayRate = (1 => 10 / 100,
+               30 => 5 / 100,
+               60 => 4 / 100,
+               90 => 2 / 100,
+               210 => 2
+    );
+
+
 =head2 getFutureContract
+
+$f = getFutureContract($days);
+
+given days , return future Contract price.
+F = S * e ^ (r*t)
+
 
 =cut
 
 sub getFutureContract {
-    return 1;
+    my $days = shift;
+    my $currentPotPrice = getCurrentPotPrice();
+
+    return getFutureContractAux($currentPotPrice,$days);
 }
 
+=head2 getFutureContractAux
 
-=head2 
+$f = getFutureContractAux($price, $days)
+
+$price: Current spot price, you will receive it from a third party provider in a realtime manner.
+$days: time in year for finding future price.
 
 =cut
 
-sub function2 {
+sub getFutureContractAux {
+    my ($price, $days) = @_;
+
+    my $interestRate = getInterestRate($days);
+
+    return undef unless defined($interestRate);
+    return $price * exp(1) ** ($interestRate * $days/365);
 }
+
+
+=head2 getInterestRate($days)
+
+given days, give the interest rate looked up from the table %dayRate;
+use interpolation if days not in the table.
+return undef if it is out of scope.
+
+=cut
+
+sub getInterestRate {
+    my $days = shift;
+    if (exists($dayRate{$days})){
+        return $dayRate{$days};
+    }
+
+    my @keyDays = keys %dayRate;
+    if ($days < min(@keyDays) || $days > max(@keyDays)){
+        return undef;
+    }
+
+    @keyDays = sort {$a <=> $b} (@keyDays, $days);
+    
+    my $idx = firstidx {$_ == $days} @keyDays;
+
+    my $beforeDays = $keyDays[$idx - 1];
+    my $afterDays = $keyDays[$idx + 1];
+
+    # interpolation
+    return $dayRate{$beforeDays} + ($days - $beforeDays) * (( $dayRate{$afterDays} - $dayRate{$beforeDays}) / ($afterDays - $beforeDays));
+
+
+}
+
+=head2 getCurrentPotPrice
+
+$currentPotPrice = getCurrentPotPrice();
+
+get current pot price from third party provider.
+
+=cut
+
+sub getCurrentPotPrice{
+    #TODO:
+    return 10;
+}
+
 
 =head1 AUTHOR
 
