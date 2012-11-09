@@ -5,12 +5,11 @@ use strict;
 use warnings FATAL => 'all';
 use base qw(Exporter);
 
-our @EXPORT = qw(getFutureContract);
-our @EXPORT_OK = qw(getFutureContract getFutureContractAux getInterestRate getCurrentPotPrice);
-
-
 use List::Util qw(min max);
 use List::MoreUtils qw(firstidx);
+
+
+
 
 =head1 NAME
 
@@ -32,14 +31,15 @@ This is a sample project for Regentmarket Markets Group company recruitement pro
 
 For purpose of the test, assume a system that accepts following parameters and generate a price as decribed bellow. 
 
-=head1 FORMULA
+=head2 FORMULA
 
 F = S * e ^ (r*t)
 
-F : Future Contract
-S : Current spot price, you will receive it from a third party provider in a realtime manner.
-t: time in year for finding future price.
-r : Annualized Interest rate. It is defined based on the following table
+ F : Future Contract
+ S : Current spot price, you will receive it from a third party provider in a realtime manner.
+ t: time in year for finding future price.
+ r : Annualized Interest rate. It is defined based on the following table
+
 
 Day  | Rate
 -----------
@@ -51,22 +51,29 @@ Day  | Rate
 
 To find interest rates that are not in the table use interpolation.
 
-=head1 EXMAPLE
+=head2 EXMAPLE
 
 Future contract if current price is 10 in thirty days is 
 
 F = 10 * e ^ (5/100 * 30/365)
 
 
-=head1 GOAL
+=head2 GOAL
 
 Build a pricing server that can accept the required parameters and generate price.
 The format to get data or to providing output is up to you.
 
 =head1 EXPORT
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+our @EXPORT = qw(getFutureContract);
+
+our @EXPORT_OK = qw(getFutureContract getFutureContractAux getInterestRate getCurrentPotPrice);
+
+=cut
+
+our @EXPORT = qw(getFutureContract);
+our @EXPORT_OK = qw(getFutureContract getFutureContractAux getInterestRate getCurrentPotPrice);
+
 
 =head1 SUBROUTINES/METHODS
 

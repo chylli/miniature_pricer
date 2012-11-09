@@ -12,4 +12,6 @@ print "please input days:";
 my $days = <>;
 $days = $days + 0;
 
-print "future contract price is : ", getFutureContract($days), "\n";
+my $f = getFutureContract($days);
+die "you input bad data\n" unless $f;
+print "future contract price is : ", $f , "\n";
